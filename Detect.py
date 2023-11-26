@@ -44,6 +44,9 @@ while cap.isOpened():
         if len(dealer) == 0:
             dealer = last_dealer
 
+        player = clean_output(player)
+        dealer = clean_output(dealer)
+
         last_player = player
         last_dealer = dealer
 
@@ -51,8 +54,9 @@ while cap.isOpened():
         print('Player: ', player)
 
         annotated_frame = results[0].plot()
-
         cv2.imshow('YOLOv8', annotated_frame)
+
+        # TODO: BlackJack logic goes here. Inputs: player, dealer. Outputs: move (hit, stand, double, split, surrender)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
