@@ -15,19 +15,40 @@ def clean_output(cards):
 model = YOLO('C:/Users/matth/runs/detect/train5/weights/best.pt')
 model.to('cuda')
 
+CONFIDENCE_THRESHOLD = .75
+
 cap = cv2.VideoCapture(0)
+last_player = []
+last_dealer = []
 
 while cap.isOpened():
+    dealer = []
+    player = []
+
     success, frame = cap.read()
-    cards = []
     if success:
         results = model(frame)
         for result in results:
             for i in range(int(result.boxes.cls.shape[0])):
                 name = result.names[int(result.boxes.cls[i])]
-                cards.append(name)
+                box = result.boxes.xyxy[i]
+                conf = result.boxes.conf[i]
 
-        print(clean_output(cards))
+                if box[3] < frame.shape[0] / 2 and conf > CONFIDENCE_THRESHOLD:
+                    dealer.append(name)
+                elif box[3] >= frame.shape[0] / 2 and conf > CONFIDENCE_THRESHOLD:
+                    player.append(name)
+
+        if len(player) == 0:
+            player = last_player
+        if len(dealer) == 0:
+            dealer = last_dealer
+
+        last_player = player
+        last_dealer = dealer
+
+        print('Dealer: ', dealer)
+        print('Player: ', player)
 
         annotated_frame = results[0].plot()
 
