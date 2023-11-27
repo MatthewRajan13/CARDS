@@ -2,6 +2,9 @@ import cv2
 from ultralytics import YOLO
 
 
+CONFIDENCE_THRESHOLD = .626
+
+
 def clean_output(cards):
     cards = list(set(cards))
     cards = [card[:-1] for card in cards]
@@ -12,31 +15,88 @@ def clean_output(cards):
     return cards
 
 
-model = YOLO('C:/Users/matth/runs/detect/train5/weights/best.pt')
-model.to('cuda')
+def display(output):
+    height, width, _ = annotated_frame.shape
+    output = annotated_frame.copy()
 
-cap = cv2.VideoCapture(0)
+    line_color = (169, 169, 169)
+    line_thickness = 5
+    dash_length = 20
 
-while cap.isOpened():
-    success, frame = cap.read()
-    cards = []
-    if success:
-        results = model(frame)
-        for result in results:
-            for i in range(int(result.boxes.cls.shape[0])):
-                name = result.names[int(result.boxes.cls[i])]
-                cards.append(name)
+    for i in range(0, width, dash_length * 2):
+        start_point = (i, height // 2)
+        end_point = (i + dash_length, height // 2)
+        cv2.line(output, start_point, end_point, line_color, line_thickness)
 
-        print(clean_output(cards))
+    alpha = 0.5
 
-        annotated_frame = results[0].plot()
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 1
+    font_thickness = 2
 
-        cv2.imshow('YOLOv8', annotated_frame)
+    text_position = (10, 35)
+    cv2.putText(output, "Dealer", text_position, font, font_scale, line_color, font_thickness)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+    text_position = (10, height // 2 + 35)
+    cv2.putText(output, "Player", text_position, font, font_scale, line_color, font_thickness)
+
+    output = cv2.addWeighted(annotated_frame, 1 - alpha, output, alpha, 0)
+
+    return output
+
+
+if __name__ == '__main__':
+
+    model = YOLO('best.pt')
+    model.to('cuda')
+
+    cap = cv2.VideoCapture(0)
+    last_player = []
+    last_dealer = []
+
+    while cap.isOpened():
+        dealer = []
+        player = []
+
+        success, frame = cap.read()
+        if success:
+            results = model(frame)
+            for result in results:
+                for i in range(int(result.boxes.cls.shape[0])):
+                    name = result.names[int(result.boxes.cls[i])]
+                    box = result.boxes.xyxy[i]
+                    conf = result.boxes.conf[i]
+
+                    if box[3] < frame.shape[0] / 2 and conf > CONFIDENCE_THRESHOLD:
+                        dealer.append(name)
+                    elif box[3] >= frame.shape[0] / 2 and conf > CONFIDENCE_THRESHOLD:
+                        player.append(name)
+
+            if len(player) == 0:
+                player = last_player
+            if len(dealer) == 0:
+                dealer = last_dealer
+
+            last_player = player
+            last_dealer = dealer
+
+            player = clean_output(player)
+            dealer = clean_output(dealer)
+
+            print('Dealer: ', dealer)
+            print('Player: ', player)
+
+            annotated_frame = results[0].plot()
+
+            screen = display(annotated_frame)
+
+            cv2.imshow('YOLOv8', screen)
+            # TODO: BlackJack logic goes here. Inputs: player, dealer. Outputs: move (hit, stand, double, split, surrender)
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
             break
-    else:
-        break
 
-cap.release()
-cv2.destroyAllWindows()
+    cap.release()
+    cv2.destroyAllWindows()
