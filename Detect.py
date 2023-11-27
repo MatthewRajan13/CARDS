@@ -1,6 +1,6 @@
 import cv2
 from ultralytics import YOLO
-
+import gameLogic
 
 CONFIDENCE_THRESHOLD = .626
 
@@ -92,6 +92,8 @@ if __name__ == '__main__':
 
             cv2.imshow('YOLOv8', screen)
             # TODO: BlackJack logic goes here. Inputs: player, dealer. Outputs: move (hit, stand, double, split, surrender)
+            suggested_move = gameLogic.logic(player, dealer)
+            print(f"Suggested move: {suggested_move}")
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
