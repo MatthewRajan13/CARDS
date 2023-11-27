@@ -15,7 +15,7 @@ def clean_output(cards):
 model = YOLO('C:/Users/matth/runs/detect/train5/weights/best.pt')
 model.to('cuda')
 
-CONFIDENCE_THRESHOLD = .75
+CONFIDENCE_THRESHOLD = .626
 
 cap = cv2.VideoCapture(0)
 last_player = []
