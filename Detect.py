@@ -12,7 +12,7 @@ def clean_output(cards):
     return cards
 
 
-model = YOLO('C:/Users/matth/runs/detect/train5/weights/best.pt')
+model = YOLO('best.pt')
 model.to('cuda')
 
 CONFIDENCE_THRESHOLD = .626
@@ -44,11 +44,11 @@ while cap.isOpened():
         if len(dealer) == 0:
             dealer = last_dealer
 
-        player = clean_output(player)
-        dealer = clean_output(dealer)
-
         last_player = player
         last_dealer = dealer
+
+        player = clean_output(player)
+        dealer = clean_output(dealer)
 
         print('Dealer: ', dealer)
         print('Player: ', player)
