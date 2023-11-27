@@ -1,12 +1,20 @@
 import Detect
 
 # Assuming Detect module contains card detection logic
-card_val = sum(Detect.cards)
-dealer_val = sum(Detect.dealer)
+#card_val = sum(Detect.cards)
+#dealer_val = sum(Detect.dealer)
 
 # Also need a counter of aces for user
 
-def logic():
+def logic(player, dealer):
+
+    ace_count = player.count('A') # Counter of aces for user
+    # Removing ace card
+    player = [card for card in player if card != 'A']
+
+    card_val = sum(player)
+    dealer_val = sum(dealer)
+
     curr_ret = "S"  # Initial suggestion is to Stand
     
     if card_val == 21:
@@ -36,5 +44,5 @@ def logic():
     return curr_ret
 
 # Example usage:
-suggested_move = logic()
-print(f"Suggested move: {suggested_move}")
+#suggested_move = logic()
+#print(f"Suggested move: {suggested_move}")
