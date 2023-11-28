@@ -15,7 +15,7 @@ def clean_output(cards):
     return cards
 
 
-def display(output):
+def display(output, move):
     height, width, _ = annotated_frame.shape
     output = annotated_frame.copy()
 
@@ -41,6 +41,11 @@ def display(output):
     cv2.putText(output, "Player", text_position, font, font_scale, line_color, font_thickness)
 
     output = cv2.addWeighted(annotated_frame, 1 - alpha, output, alpha, 0)
+
+    text_position = (width * 3 // 4, height // 2 + 35)
+    cv2.putText(output, suggested_move, text_position, font, font_scale, line_color, font_thickness)
+
+    output = cv2.addWeighted(output, 1 - alpha, output, alpha, 0)
 
     return output
 
@@ -88,12 +93,11 @@ if __name__ == '__main__':
 
             annotated_frame = results[0].plot()
 
-            screen = display(annotated_frame)
-
-            cv2.imshow('YOLOv8', screen)
-            # TODO: BlackJack logic goes here. Inputs: player, dealer. Outputs: move (hit, stand, double, split, surrender)
             suggested_move = gameLogic.logic(player, dealer)
             print(f"Suggested move: {suggested_move}")
+
+            screen = display(annotated_frame, suggested_move)
+            cv2.imshow('YOLOv8', screen)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
