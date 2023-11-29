@@ -1,11 +1,4 @@
-import Detect
-
-# Assuming Detect module contains card detection logic
-#card_val = sum(Detect.cards)
-#dealer_val = sum(Detect.dealer)
-
-# Also need a counter of aces for user
-
+# Game Logic Helper
 def logic(player, dealer):
 
     ace_count = player.count('A') # Counter of aces for user
@@ -19,6 +12,9 @@ def logic(player, dealer):
     
     if card_val == 21:
         return "Stand"
+    
+    if card_val <= 7:
+        return "Hit"
     
     # Hit logic
     if card_val == 8 or \
@@ -42,7 +38,3 @@ def logic(player, dealer):
         curr_ret = "Surrender"  # Suggest Surrender
     
     return curr_ret
-
-# Example usage:
-#suggested_move = logic()
-#print(f"Suggested move: {suggested_move}")
