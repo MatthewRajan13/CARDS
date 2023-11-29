@@ -1,4 +1,5 @@
 import cv2
+import torch
 from ultralytics import YOLO
 import gameLogic
 
@@ -53,7 +54,8 @@ def display(output, move):
 if __name__ == '__main__':
 
     model = YOLO('best.pt')
-    model.to('cuda')
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model.to(device)
 
     cap = cv2.VideoCapture(0)
     last_player = []
